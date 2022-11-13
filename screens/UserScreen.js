@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import type { Node } from "react";
 import LinearGradient from "react-native-linear-gradient";
 import {
@@ -10,7 +10,10 @@ import {
   Text, TouchableOpacity,
   useColorScheme,
   View,
-  Platform, Dimensions,
+  Platform,
+  Dimensions,
+  Animated,
+  Easing
 } from "react-native";
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import Setting from "../icons/Setting";
@@ -77,7 +80,23 @@ const UserScreen = ({ navigation }): Node => {
   }, []);
 
 
+  const translation = useRef(new Animated.Value(0)).current;
+  const left = useRef(new Animated.Value(20)).current;
+  const mb = useRef(new Animated.Value(0)).current;
+  const size = useRef(new Animated.Value(34)).current;
+
+  // useEffect(() => {
+  //   Animated.timing(translation, {
+  //     toValue: headerShown ? -100 : 0,
+  //     duration: 250,
+  //     useNativeDriver: true,
+  //   }).start();
+  // }, [headerShown]);
+
+
   const color = "#5C00AB";
+
+  const [X, setX] = useState(230)
 
   return (
     <View>
@@ -100,12 +119,13 @@ const UserScreen = ({ navigation }): Node => {
             colors={["#2D1A7A", "rgba(57, 30, 77, 0.632023)", "rgba(110, 48, 112, 0.5)", "rgba(89, 36, 109, 0.697765)", "#4F347C", "#87528F"]}
             start={{ x: -0.2, y: 0.1 }} end={{ x: 0.8, y: 0.9 }} style={{ zIndex: -1 }}>
 
+        <View style={{ zIndex: 1 }}>
 
-            <View style={{ backgroundColor: theme.background }}>
-
-
-              <View
-                style={{ borderBottomEndRadius: 10, borderBottomStartRadius: 10, backgroundColor: color, height: 230 }}>
+              <Animated.View
+                style={{ borderBottomEndRadius: 10, borderBottomStartRadius: 10, backgroundColor: color, height: X,
+                  transform: [
+                    { translateY : translation },
+                  ],}}>
                 <View style={[styles.shadowProp2, {
                   top: 20,
                   left: 30,
@@ -159,7 +179,7 @@ const UserScreen = ({ navigation }): Node => {
                   position: "absolute",
                   borderBottomEndRadius: 10,
                   borderBottomStartRadius: 10,
-                  height: 230,
+                  height: X,
                 }}>
                   <View style={[styles.shadowProp2, {
                     marginTop: 100,
@@ -168,15 +188,13 @@ const UserScreen = ({ navigation }): Node => {
                     width: 150,
                     borderRadius: 100,
                     backgroundColor: "#CE00B7",
-
                     transform: [{ rotate: "45deg" }],
                     opacity: .4,
                   }]} />
-                </View>
 
                 <View style={{
-                  top: 170,
-                  left: 20,
+                  marginTop: 170,
+                  marginLeft: 20,
                   height: 100,
                   width: 200,
                   borderRadius: 100,
@@ -184,35 +202,40 @@ const UserScreen = ({ navigation }): Node => {
                   position: "absolute",
                   opacity: .5,
                 }} />
-              </View>
+                </View>
+              </Animated.View>
 
               <View style={{ height: 0 }}>
-                <View style={{
+                <Animated.View style={{
                   position: "relative",
-                  bottom: 230,
-                  height: 230,
+                  bottom: X,
+                  height: X,
                   borderBottomEndRadius: 10,
                   borderBottomStartRadius: 10,
                   overflow: "hidden",
                   width: "100%",
+                  transform: [
+                    { translateY : translation },
+                  ],
+
                 }}>
                   <BlurView
-                    style={{ height: 230 }}
+                    style={{ height: X,
+                       }}
 
                     blurType="light"
                     blurAmount={40}
                     key={Platform.select({ android: Math.random().toString(), ios: "blur" })}
                     overlayColor={Platform.select({ android: "transparent", ios: "rgba(255, 255, 255, .7)" })}
                   />
-                </View>
+                </Animated.View>
               </View>
 
 
-            </View>
 
-            <View style={{ height: 0 }}>
-              <View style={{ height: 230, position: "relative", bottom: 230 }}>
-                <View style={{ height: 83.45, justifyContent: "center", marginTop: 30 }}>
+            <View style={{ height: 0, }}>
+              <View style={{ height: X, position: "relative", bottom: X }}>
+                <View style={{ height: 83.45, justifyContent: "center", marginTop: 30}}>
                   <View style={{ flexDirection: "row" }}>
                     <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
                       <Image style={{
@@ -231,13 +254,14 @@ const UserScreen = ({ navigation }): Node => {
                     {/*  <Text style={{ fontSize: normalize(24), color: "#fff", fontWeight: "bold" }}>Демо-счёт</Text>*/}
                     {/*</View>*/}
 
+
                     <View style={{ height: 46, justifyContent: "center", width: "100%", marginRight: -121 }}>
                       <Text style={{ fontSize: 16, color: "#fff" }}>Aкции</Text>
                       <Text style={{
                         fontSize: 16,
                         color: "#fff",
                         fontWeight: "bold",
-                      }}>{user.stocksBalance >= 0 ? user.stocksBalance.toFixed(2) : 0} USD</Text>
+                      }}>{user.stocksBalance >= 0 ? user.stocksBalance.toFixed(2) : 0} $ </Text>
                     </View>
 
                     <TouchableOpacity onPress={() => navigation.navigate("Bell")} style={{ justifyContent: "center" }}>
@@ -245,21 +269,22 @@ const UserScreen = ({ navigation }): Node => {
                     </TouchableOpacity>
 
                   </View>
-
-
                 </View>
 
-                <View style={{ height: 46, justifyContent: "center", width: "100%", marginLeft: 20, marginTop: 40 }}>
+                <Animated.View style={{height: mb, width }}></Animated.View>
+                <Animated.View style={{ transform: [
+                    { translateY : translation },
+                  ], height: 46, justifyContent: "center", width: "100%", marginLeft: left, marginTop: 40   }}>
                   <Text style={{ fontSize: 16, color: "#fff" }}>Баланс</Text>
-                  <Text style={{
-                    fontSize: 34,
+                  <Animated.Text style={{
+                    fontSize: size,
                     color: "#fff",
                     fontWeight: "bold",
-                  }}>{user.currencyBalance >= 0 ? user.currencyBalance.toFixed(2) : 0} $</Text>
-                </View>
+                  }}>{user.currencyBalance >= 0 ? user.currencyBalance.toFixed(2) : 0} $</Animated.Text>
+                </Animated.View>
               </View>
             </View>
-
+        </View>
             {/*<View style={{height: 67}}/>*/}
             {/*<View style={{ marginTop: -67, marginBottom: -25, alignItems: "center" }}>*/}
             {/*  <View style={[styles.shadowProp, {*/}
@@ -313,11 +338,97 @@ const UserScreen = ({ navigation }): Node => {
             {/*</View>*/}
 
 
-            <ScrollView
-              contentInsetAdjustmentBehavior="automatic"
+            <ScrollView onScroll={(event) => {
+              const scrolling = event.nativeEvent.contentOffset.y;
+
+              if  (scrolling > 0 &&  scrolling <= 120 ) {
+                Animated.timing(translation, {
+                  toValue: -scrolling,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+                Animated.timing(left, {
+                  toValue: 20 + scrolling * 1.5,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+                Animated.timing(mb, {
+                  toValue: scrolling / 8,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+                Animated.timing(size, {
+                  toValue: 34 - scrolling / 6.666,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+              }
+              else
+              if (scrolling > 0) {
+                Animated.timing(translation, {
+                  toValue: -120,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+                Animated.timing(left, {
+                  toValue: 200 ,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+                Animated.timing(mb, {
+                  toValue:  15,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+                Animated.timing(size, {
+                  toValue: 16,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+              }
+              else {
+                Animated.timing(translation, {
+                  toValue: 0,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+                Animated.timing(left, {
+                  toValue: 20,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+                Animated.timing(mb, {
+                  toValue: 0,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+                Animated.timing(size, {
+                  toValue: 34,
+                  duration: 0,
+                  useNativeDriver: false,
+                  easing: Easing.linear,
+                }).start();
+              }
+            }}
+                        scrollEventThrottle={16}
+
               showsVerticalScrollIndicator={false}
-              style={{ backgroundColor: theme.bottomBar, minHeight: "100%" }}
+              style={{ backgroundColor: theme.bottomBar, minHeight: "100%",
+                marginTop: -320, zIndex: 0
+              }}
             >
+
 
 
               {/*<View style={{ marginTop: 55, marginLeft: 24 }}>*/}
@@ -331,7 +442,7 @@ const UserScreen = ({ navigation }): Node => {
               {/*  </View>*/}
               {/*</View>*/}
 
-              <View style={{ marginTop: 25, marginLeft: 24 }}>
+              <View style={{ marginTop: 340, marginLeft: 24 }}>
                 <Text style={{ fontWeight: "bold", color: "white", fontSize: 24 }}>Портфель</Text>
               </View>
               {
@@ -369,7 +480,7 @@ const UserScreen = ({ navigation }): Node => {
                   </View>
               }
 
-              <View style={{ height: Platform.OS === "ios" ? 480 : 480 }} />
+              <View style={{ height: Platform.OS === "ios" ? 240 : 240}} />
 
             </ScrollView>
 
